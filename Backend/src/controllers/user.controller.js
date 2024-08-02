@@ -16,7 +16,6 @@ import {
 
 const registerUser = asyncHandler(async (req, res, next) => {
     const { fullName, email, password } = req.body;
-    console.log()
 
     if ([fullName, email, password].some(field => field?.trim() === "")) {
         throw next(new ApiError(400, "All fields are required"));
@@ -70,7 +69,7 @@ const generateTokens = async (userId) => {
 
 const loginUser = asyncHandler(async (req, res, next) => {
     const { email, password } = req.body;
-    
+    console.log(email,password )
     if (!email || !password) {
         return next(new ApiError(401, "Email and password are required"));
     }
@@ -100,7 +99,7 @@ const loginUser = asyncHandler(async (req, res, next) => {
         .json(new ApiResponse(
             200,
             { user, accessToken, refreshToken },
-            "User logged in successfully"
+            "Logged in successfully"
         ));
 });
 

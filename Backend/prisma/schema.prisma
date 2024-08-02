@@ -23,4 +23,21 @@ model User {
   avatarUrl      String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  roomsAsAuthor  Room[]   @relation("AuthorRooms")`
+  roomsAsMember  RoomMember[] 
+}
+
+model Room {
+  id             Int      @id @default(autoincrement())
+  authorId       Int
+  author         User    @relation("AuthorRooms", fields: [authorId], references: [id])
+  members        RoomMember[]
+}
+
+model RoomMember {
+  roomId         Int
+  userId         Int
+  room           Room    @relation(fields: [roomId], references: [id])
+  user           User    @relation(fields: [userId], references: [id])
+  @@id([roomId, userId])
 }
