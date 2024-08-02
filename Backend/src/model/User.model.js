@@ -1,71 +1,69 @@
-import mongoose from 'mongoose';
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
+const prisma = new PrismaClient();
 
-const UserSchema = new mongoose.Schema({
-    name:{
-        type:String,
-        required:true,
-    },
-    email:{
-        type:String,
-        required:true,
-        unique:true
-    },
-    password:{
-        type:String,
-        required:true
-    },
-    active:{
-        type:Boolean,
-        default:true
-    },
-    refreshToken:{
-        type:String
-    },
-    avatarUrl:{
-        type:String
+export const createUser = async ({ name, email, password, avatarUrl }) => {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    return prisma.user.create({
+        data: {
+            name,
+            email,
+            password: hashedPassword,
+            avatarUrl
+        }
+    });
+};
+
+export const findUserByEmail = async (email) => {
+    if(!email){
+        console.log("no emial")
     }
-}, {
-    timestamps:true
-})
+    return prisma.user.findUnique({
+        where: { email },
+        select: { password: true, refreshToken: true, id: true, name: true, email: true }
+    });
+};
 
-UserSchema.pre('save',async function(next){
-    if(!this.isModified('password')) return next();
-    this.password =await bcrypt.hash(this.password,10);
-    next();
-})
+export const findUserById = async (id) => {
+    const userid = parseInt(id); 
+    return prisma.user.findUnique({
+        where: { id:userid },
+        select: { id: true, name: true, email: true, avatarUrl: true, refreshToken: true }
+    });
+};
 
-UserSchema.methods.isPasswordCorrect = async function (password) {
-    const res = await bcrypt.compare(password,this.password);
-    return res
-}
-UserSchema.methods.generateAccessToken = function(){
+export const updateUserRefreshToken = async (id, refreshToken) => {
+    return prisma.user.update({
+        where: { id },
+        data: { refreshToken }
+    });
+};
+
+export const clearUserRefreshToken = async (id) => {
+    return prisma.user.update({
+        where: { id },
+        data: { refreshToken: null }
+    });
+};
+
+export const comparePassword = async (inputPassword, hashedPassword) => {
+    return bcrypt.compare(inputPassword, hashedPassword);
+};
+
+export const generateAccessToken = (user) => {
     return jwt.sign(
-        {
-            id:this._id,
-            email:this.email,
-            name:this.name
-
-        },
+        { id: user.id, email: user.email, name: user.name },
         process.env.ACCESS_TOKEN_SECRET,
-        {
-            expiresIn:process.env.ACCESS_TOKEN_EXPIRY
-        }
-    )
-}
-UserSchema.methods.generateRefreshToken = function(){
+        { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
+    );
+};
+
+export const generateRefreshToken = (user) => {
     return jwt.sign(
-        {
-            id:this._id,
-
-        },
+        { id: user.id },
         process.env.REFRESH_TOKEN_SECRET,
-        {
-            expiresIn:process.env.REFRESH_TOKEN_EXPIRY
-        }
-    )
-}
-
-export const User = mongoose.model("User",UserSchema);
+        { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
+    );
+};
