@@ -23,8 +23,8 @@ model User {
   avatarUrl      String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  roomsAsAuthor  Room[]   @relation("AuthorRooms")`
-  roomsAsMember  RoomMember[] 
+  roomsAsAuthor  Room[]   @relation("AuthorRooms")
+  roomsAsMember  RoomMember[]
 }
 
 model Room {
@@ -32,6 +32,7 @@ model Room {
   authorId       Int
   author         User    @relation("AuthorRooms", fields: [authorId], references: [id])
   members        RoomMember[]
+  projects       Project[] 
 }
 
 model RoomMember {
@@ -40,4 +41,27 @@ model RoomMember {
   room           Room    @relation(fields: [roomId], references: [id])
   user           User    @relation(fields: [userId], references: [id])
   @@id([roomId, userId])
+}
+
+model Project {
+  id             Int      @id @default(autoincrement()) 
+  authorId       Int
+  roomId         Int?     
+  room           Room?    @relation(fields: [roomId], references: [id]) // Add this relation
+  name           String
+  description    String
+  links          Link[]   
+  images         Image[]  
+}
+
+model Link {
+  id             Int      @id @default(autoincrement())
+  url            String   
+  project        Project  @relation(fields: [id], references: [id]) 
+}
+
+model Image {
+  id             Int      @id @default(autoincrement())
+  url            String
+  project        Project  @relation(fields: [id], references: [id]) 
 }

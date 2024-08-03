@@ -16,6 +16,7 @@ import { useState, useEffect } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { domain } from "@/lib/domain"
+import { useRouter } from "next/navigation"
 
 export default function page() {
     const [email, setEmail] = useState('');
@@ -23,6 +24,7 @@ export default function page() {
     const [error, setError] = useState(null);
     const [loading, setloading] = useState<boolean>(false)
     const { toast } = useToast();
+    const router = useRouter();
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -47,6 +49,7 @@ export default function page() {
     
             
             setloading(false)
+            router.push("/dashboard")
         } catch (err: any) {
             setError(err.response?.data?.message || 'Something went wrong');
             setloading(false)

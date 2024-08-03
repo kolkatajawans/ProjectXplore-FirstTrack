@@ -1,29 +1,28 @@
 'use client'
+import Project from '@/components/Project'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card'
 import { ComboboxDemo } from '@/components/ui/combobox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import Linkfiled from '@/components/ui/Linkfiled'
+import Mediainput from '@/components/ui/mediainput'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import React, { useState } from 'react'
 
 const roomsarray = [
-    { value: "1", label: "kolkata Jawans" }
+    { value: "1", label: "kolkata Jawans" },
+    { value: "2", label: "BharaBytes" }
 ]
-const projectsarray = [
-    { value: "1", label: "Create Project" },
-    { value: "2", label: "Update Project" },
-]
+
 
 const Page = () => { // Capitalized the component name
-    const [ProjectChoice, setProjectChoice] = useState<string>("1"); // Adjusted default value
     const [RoomChoice, setRoomChoice] = useState<string>("1");
+    
 
-    const handleProjectValueChange = (newValue: string) => {
-        setProjectChoice(newValue);
-    };
 
     const handleRoomValueChange = (newValue: string) => {
         setRoomChoice(newValue);
@@ -68,38 +67,7 @@ const Page = () => { // Capitalized the component name
                         </ScrollArea>
                     </div>
                     <div id="createproject" className='col-start-2 col-end-3 bg-background'>
-                        <Card className='w-full flex flex-col justify-center items-start'>
-                            <CardTitle className='w-full flex justify-start ml-6'>
-                                <ComboboxDemo
-                                    frameworks={projectsarray}
-                                    placeholder="Select a project..."
-                                    defaultValue={ProjectChoice}
-                                    onValueChange={handleProjectValueChange}
-                                />
-                            </CardTitle>
-                            <CardDescription className='w-full flex justify-start ml-6'>
-                                Share your new project
-                            </CardDescription>
-                            <CardContent className='w-full flex justify-center p-0'>
-                                <form className='w-full flex justify-center flex-1'>
-                                    <div className="grid w-full items-center gap-4 justify-center flex-1">
-                                        <div className="flex flex-col space-y-1.5 w-full justify-center">
-                                            <Label htmlFor="name" className='w-full justify-start pl-6'>Name</Label>
-                                            <Input id="name" placeholder="Name of your project" />
-                                        </div>      
-                                        <div className="flex flex-col space-y-1.5">
-                                            <Label htmlFor="desc">Description</Label>
-                                            <Textarea id="desc" placeholder="Description of your project" />
-                                        </div>
-                                        <div className="flex flex-col space-y-1.5">
-                                            <Label htmlFor="link">Usefull Link</Label>
-                                            <Input id="1" placeholder="xyz.com" />
-                                        </div>
-                                    </div>
-                                </form>
-                            </CardContent>
-
-                        </Card>
+                        <Project/>
                     </div>
                     <div id="AboutYou" className='col-start-3 col-end-4 bg-background '>
                         {/* Content here */}

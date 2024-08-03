@@ -23,10 +23,11 @@ app.use(cookieParser());
 
 //router import 
 import userRouter from './routes/user.router.js';
+import ProjectRouter from './routes/project.router.js';
 
 //router declaration
 app.use('/api/v1/users', userRouter);
-// app.post('/api/v1/users/register',upload.single("avatar"), registerUser);
+app.use('/api/v1/project',ProjectRouter)
 
 
 
