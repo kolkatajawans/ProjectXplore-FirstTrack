@@ -11,7 +11,11 @@ import Mediainput from '@/components/ui/mediainput'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
-import React, { useState } from 'react'
+import { userAtom } from '@/lib/atoms/userAtom'
+import { domain } from '@/lib/domain'
+import axios from 'axios'
+import { useAtom } from 'jotai'
+import React, { useEffect, useState } from 'react'
 
 const roomsarray = [
     { value: "1", label: "kolkata Jawans" },
@@ -20,6 +24,26 @@ const roomsarray = [
 
 
 const Page = () => { // Capitalized the component name
+    const [,setUser] = useAtom(userAtom);
+    // let token = null;
+    useEffect(()=>{
+        async function useUser() {
+            try {
+              const response = await axios.get(`${domain}/api/v1/users/validateUser`, {
+                withCredentials: true,
+              });
+              const data = response.data;
+              console.log(data);
+              if(response && response.data.data.id){
+                setUser(response.data.data.id)
+              }
+            } catch (error) {
+              console.error(error);
+            //   return null;   
+            }
+          }
+        useUser ();
+    },[])
     const [RoomChoice, setRoomChoice] = useState<string>("1");
     
 

@@ -5,7 +5,8 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 const prisma = new PrismaClient();
 
 const createProject = asyncHandler(async (req, res, next) => {
-  const { userId, name, description, links, images } = req.body; // Use req.body instead of req.query
+  const { userId, name, description, links } = req.body; // Use req.body instead of req.query
+  const images = req.files;
     console.log(userId, name, description, links, images);
     
   // Validate the input data
