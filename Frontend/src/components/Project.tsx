@@ -71,7 +71,6 @@ const Project = () => {
             </CardTitle>
             <CardDescription className="w-full flex justify-start py-2">
                 Share your new project
-                {/* {token} */}
             </CardDescription>
             <CardContent className="w-full flex justify-center px-7">
                 <form className="w-full flex justify-center flex-1">

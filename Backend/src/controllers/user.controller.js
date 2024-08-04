@@ -88,9 +88,11 @@ const loginUser = asyncHandler(async (req, res, next) => {
 
     const options = {
         httpOnly: true,
-        secure: false, // Set to true if you're using HTTPS
-        sameSite: "Strict",
-    };
+        secure: false, // HTTP for development
+        sameSite: 'Lax', // or 'Strict' based on your needs
+        maxAge: 24 * 60 * 60 * 1000 // Optional: Set expiration time
+      };
+      
 
     return res
         .status(200)
@@ -207,81 +209,6 @@ const getUserDetails = asyncHandler(async (req, res, next) => {
         .json(new ApiResponse(200, userDetails, "User found"));
 });
 
-const validateTokenAndReturnDetails = asyncHandler(async (req, res, next) => {
-    try {
-        const incomingAccessToken = req.cookies.accessToken;
-        const incomingRefreshToken =
-            req.cookies.refreshToken ||
-            req.headers["authorization"]?.substring(7);
-
-        console.log('Access Token:', incomingAccessToken);
-        console.log('Refresh Token:', incomingRefreshToken);
-
-        if (!incomingAccessToken || !incomingRefreshToken) {
-            return next(new ApiError(401, "Unauthorized request"));
-        }
-
-        const decodedAccessToken = jwt.verify(
-            incomingAccessToken,
-            process.env.ACCESS_TOKEN_SECRET
-        );
-        const user = await findUserById(decodedAccessToken.id);
-
-        if (!user) {
-            const decodedRefreshToken = jwt.verify(
-                incomingRefreshToken,
-                process.env.REFRESH_TOKEN_SECRET
-            );
-            const user = await findUserById(decodedRefreshToken.id);
-
-            if (!user || user.refreshToken !== incomingRefreshToken) {
-                return next(new ApiError(401, "Invalid refresh token"));
-            }
-
-            const { accessToken, refreshToken } = await generateTokens(user.id);
-            const options = {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production', // Use HTTPS in production
-                sameSite: "Strict",
-            };
-
-            return res
-                .status(200)
-                .cookie("accessToken", accessToken, options)
-                .cookie("refreshToken", refreshToken, options)
-                .json(
-                    new ApiResponse(
-                        200,
-                        { accessToken, refreshToken, user },
-                        "Access token refreshed"
-                    )
-                );
-        } else {
-            const { accessToken, refreshToken } = await generateTokens(user.id);
-            const options = {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production', // Use HTTPS in production
-                sameSite: "Strict",
-            };
-
-            return res
-                .status(200)
-                .cookie("accessToken", accessToken, options)
-                .cookie("refreshToken", refreshToken, options)
-                .json(
-                    new ApiResponse(
-                        200,
-                        { accessToken, refreshToken, user },
-                        "Access token refreshed"
-                    )
-                );
-        }
-    } catch (error) {
-        console.error('Error:', error.message); // Log the error message
-        return next(new ApiError(401, error.message || "Invalid access token"));
-    }
-});
-
 
 export {
     registerUser,
@@ -290,5 +217,4 @@ export {
     refreshAccessToken,
     validateAccessToken,
     getUserDetails,
-    validateTokenAndReturnDetails,
 };
