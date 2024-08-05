@@ -18,8 +18,6 @@ import { userAtom } from "@/lib/atoms/userAtom";
 const Project = () => {
     const [user] = useAtom(userAtom);
     console.log(user);
-    useEffect(()=>{
-    },[user])
     const [ProjectChoice, setProjectChoice] = useState<string>("1");
     const [linkfields, setlinkfields] = useState<any>([ { id: 1,link: "" }]);
     const [name,setname] = useState<string >("");

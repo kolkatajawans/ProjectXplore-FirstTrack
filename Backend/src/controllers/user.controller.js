@@ -1,18 +1,18 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import {
+    clearUserRefreshToken,
+    comparePassword,
     createUser,
     findUserByEmail,
     findUserById,
-    updateUserRefreshToken,
-    clearUserRefreshToken,
-    comparePassword,
     generateAccessToken,
     generateRefreshToken,
+    updateUserRefreshToken,
 } from "../model/user.model.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const registerUser = asyncHandler(async (req, res, next) => {
     const { fullName, email, password } = req.body;
@@ -168,7 +168,7 @@ const refreshAccessToken = asyncHandler(async (req, res, next) => {
 
 const validateAccessToken = asyncHandler(async (req, res, next) => {
     const incomingAccessToken = req.cookies.accessToken;
-
+    console.log("this",incomingAccessToken)
     if (!incomingAccessToken) {
         throw next(new ApiError(401, "Unauthorized request"));
     }
@@ -211,10 +211,8 @@ const getUserDetails = asyncHandler(async (req, res, next) => {
 
 
 export {
-    registerUser,
-    loginUser,
+    getUserDetails, loginUser,
     logoutUser,
-    refreshAccessToken,
-    validateAccessToken,
-    getUserDetails,
+    refreshAccessToken, registerUser, validateAccessToken
 };
+

@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { userAtom } from '@/lib/atoms/userAtom'
 import { domain } from '@/lib/domain'
+import useAuth from '@/lib/hooks/useUser'
 import axios from 'axios'
 import { useAtom } from 'jotai'
 import React, { useEffect, useState } from 'react'
@@ -24,6 +25,9 @@ const roomsarray = [
 
 
 const Page = () => { // Capitalized the component name
+    const {loading,authenticated} = useAuth();
+
+    
     
     const [RoomChoice, setRoomChoice] = useState<string>("1");
     
@@ -32,7 +36,11 @@ const Page = () => { // Capitalized the component name
     const handleRoomValueChange = (newValue: string) => {
         setRoomChoice(newValue);
     };
-
+    if(loading){
+        return (
+            <div>Loading</div>  
+        )
+    }else{
     return (
         <main className='flex flex-col w-screen min-h-screen overflow-hidden m-0 p-0 '>
             <div className='absolute top-0 right-0 left-0 h-16 flex justify-between items-center px-4 bg-background'>
@@ -81,6 +89,7 @@ const Page = () => { // Capitalized the component name
             </div>
         </main>
     )
+    }
 }
 
 export default Page
