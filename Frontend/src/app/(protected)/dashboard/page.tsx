@@ -36,7 +36,14 @@ const Page = () => { // Capitalized the component name
     const handleRoomValueChange = (newValue: string) => {
         setRoomChoice(newValue);
     };
-    if(loading){
+    if(authenticated==false && loading==false){
+        return (
+            <div className='w-screen h-screen flex justify-center items-center text-[150px]'>
+                Please Login
+            </div>
+        )
+    }
+    if(loading || authenticated==false){
         return (
             <div>Loading</div>  
         )

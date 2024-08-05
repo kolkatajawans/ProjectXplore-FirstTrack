@@ -1,6 +1,12 @@
-'use client'
+"use client";
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardTitle } from "./ui/card";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardTitle,
+} from "./ui/card";
 import { Label } from "@radix-ui/react-label";
 import { Button } from "./ui/button";
 import { ComboboxDemo } from "./ui/combobox";
@@ -14,26 +20,30 @@ import axios from "axios";
 import { domain } from "@/lib/domain";
 import { useAtom } from "jotai";
 import { userAtom } from "@/lib/atoms/userAtom";
+import { useToast } from "./ui/use-toast";
 
 const Project = () => {
     const [user] = useAtom(userAtom);
-    console.log(user);
+    const userid = user?.toString();
     const [ProjectChoice, setProjectChoice] = useState<string>("1");
-    const [linkfields, setlinkfields] = useState<any>([ { id: 1,link: "" }]);
-    const [name,setname] = useState<string >("");
-    const [desc,setdesc] = useState<string>("");
-    const [mediaFiles,setmediaFiles] = useState<File[]>([]);
-    const handlemediaChange = (files: File[])=>{
+    const [linkfields, setlinkfields] = useState<any>([{ id: 1, link: "" }]);
+    const [name, setname] = useState<string>("");
+    const [desc, setdesc] = useState<string>("");
+    const [mediaFiles, setmediaFiles] = useState<File[]>([]);
+    const { toast } = useToast();
+    const handlemediaChange = (files: File[]) => {
         setmediaFiles(files);
-    }
-    const handleLinkChange = (id:any,value:string)=>{
-        setlinkfields(linkfields.map((field:any)=>{
-            if(field.id ==id){
-                return {...field, link:value}
-            }
-            return field;
-        }))
-    }
+    };
+    const handleLinkChange = (id: any, value: string) => {
+        setlinkfields(
+            linkfields.map((field: any) => {
+                if (field.id == id) {
+                    return { ...field, link: value };
+                }
+                return field;
+            })
+        );
+    };
 
     const projectsarray = [
         { value: "1", label: "Create Project" },
@@ -51,12 +61,46 @@ const Project = () => {
     const handleProjectValueChange = (newValue: string) => {
         setProjectChoice(newValue);
     };
-    const handleSubmit =async ()=>{
-        const links = linkfields.map((field:any)=>field.link);
-        
+    const handleSubmit = async () => {
+        // if (typeof user === "string") {
+            console.log("user : ",user);
+            
+            const links = linkfields.map((field: any) => field.link);
+            const formData = new FormData();
 
-        console.log(name,desc,links,mediaFiles)
-    }
+            formData.append("name", name);
+            formData.append("userId", userid); 
+            formData.append("description", desc);
+            formData.append("links", JSON.stringify(links));
+
+            mediaFiles.forEach((file) => {
+                formData.append("images", file);
+            });
+
+            try {
+                const response = await axios.post(
+                    `${domain}/api/v1/project/create`,
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    }
+                );
+                console.log("Project created successfully:", response.data);
+                toast({
+                    title: "Project Created Successfully",
+                });
+            } catch (error) {
+                console.error(error);
+                toast({
+                    title: "Error Uploading the Project",
+                    description: "Please try again.",
+                });
+            }
+          // }
+    };
+
     return (
         <Card className="w-full flex flex-col justify-center items-start">
             <CardTitle className="w-full flex justify-start">
@@ -81,8 +125,8 @@ const Project = () => {
                                 Name
                             </Label>
                             <Input
-                            value={name}
-                            onChange={(e:any)=>setname(e.target.value)}
+                                value={name}
+                                onChange={(e: any) => setname(e.target.value)}
                                 id="name"
                                 placeholder="Name of your project"
                             />
@@ -91,7 +135,7 @@ const Project = () => {
                             <Label htmlFor="desc">Description</Label>
                             <Textarea
                                 value={desc}
-                                onChange={(e:any)=>setdesc(e.target.value)}
+                                onChange={(e: any) => setdesc(e.target.value)}
                                 id="desc"
                                 placeholder="Description of your project"
                             />
@@ -107,7 +151,7 @@ const Project = () => {
                         <Button type="button" onClick={addField}>
                             Add
                         </Button>
-                        <Mediainput onChange={handlemediaChange}/>
+                        <Mediainput onChange={handlemediaChange} />
                     </div>
                 </form>
             </CardContent>

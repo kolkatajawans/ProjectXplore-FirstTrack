@@ -13,12 +13,17 @@ const createProject = asyncHandler(async (req, res, next) => {
   if (!userId || !name || !description) {
     return res.status(400).json({ message: 'Please provide all required fields' });
   }
+  const authorId = parseInt(userId, 10);
+  if (isNaN(authorId)) {
+    return next(new ApiError(400, 'Invalid user ID'));
+  }
+
 
   try {
     // Create a new project
     const project = await prisma.project.create({
       data: {
-        authorId: userId,
+        authorId,
         name,
         description,
       },
@@ -27,9 +32,9 @@ const createProject = asyncHandler(async (req, res, next) => {
     // Upload images to Cloudinary and create image records
     const imageRecords = [];
     for (const image of images) {
-      const avatarUrl = await uploadOnCloudinary(image);
+      const avatarUrl = await uploadOnCloudinary(image.path);
       imageRecords.push({
-        url: avatarUrl,
+        url: avatarUrl.url,
         projectId: project.id,
       });
     }

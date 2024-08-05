@@ -12,7 +12,7 @@ function useAuth() {
   useEffect(() => {
     const refreshAccesstoken = async () => {
       try {
-        const response = await axios.post(`${domain}/api/v1/users/refresh-token`, {
+        const response = await axios.post(`${domain}/api/v1/users/refresh-token`,{}, {
           withCredentials: true,
         });
         if (response.status === 200) {
@@ -29,7 +29,7 @@ function useAuth() {
 
     const checkAuth = async () => {
       try {
-        const response = await axios.post(`${domain}/api/v1/users/validate-token`, {
+        const response = await axios.post(`${domain}/api/v1/users/validate-token`,{}, {
           withCredentials: true,
         });
         if (response.status === 200) {
