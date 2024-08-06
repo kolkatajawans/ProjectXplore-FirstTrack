@@ -1,22 +1,13 @@
 'use client'
 import Project from '@/components/Project'
+import ProjectList from '@/components/ProjectList'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card'
 import { ComboboxDemo } from '@/components/ui/combobox'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import Linkfiled from '@/components/ui/Linkfiled'
-import Mediainput from '@/components/ui/mediainput'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import { Textarea } from '@/components/ui/textarea'
-import { userAtom } from '@/lib/atoms/userAtom'
-import { domain } from '@/lib/domain'
 import useAuth from '@/lib/hooks/useUser'
-import axios from 'axios'
-import { useAtom } from 'jotai'
-import React, { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 const roomsarray = [
     { value: "1", label: "kolkata Jawans" },
@@ -79,14 +70,10 @@ const Page = () => { // Capitalized the component name
                     <div id="projectlist" className='col-start-1 col-end-2 bg-background border-2'>
                         <h1 className='m-2 text-xl'>Project List</h1>
                         <ScrollArea>
-                            <Card className='mx-6'>
-                                <CardContent className='text-sm'>
-                                    param2610-cloud/employee-management-system
-                                </CardContent>
-                            </Card>
+                            <ProjectList/>
                         </ScrollArea>
                     </div>
-                    <div id="createproject" className='col-start-2 col-end-3 bg-background'>
+                    <div id="createproject" className='col-start-2 col-end-3 bg-background flex justify-center items-center'>
                         <Project/>
                     </div>
                     <div id="AboutYou" className='col-start-3 col-end-4 bg-background '>

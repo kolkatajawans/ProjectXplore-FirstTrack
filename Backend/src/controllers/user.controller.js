@@ -78,6 +78,7 @@ const loginUser = asyncHandler(async (req, res, next) => {
     if (!user) {
         return next(new ApiError(402, "User does not exist"));
     }
+    console.log(user);
 
     const validateUser = await comparePassword(password, user.password);
     if (!validateUser) {

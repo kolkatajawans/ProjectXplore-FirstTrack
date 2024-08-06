@@ -1,5 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import { userAtom } from "@/lib/atoms/userAtom";
+import { domain } from "@/lib/domain";
+import { Label } from "@radix-ui/react-label";
+import axios from "axios";
+import { useAtom } from "jotai";
+import { useState } from "react";
+import { Button } from "./ui/button";
 import {
     Card,
     CardContent,
@@ -7,19 +13,11 @@ import {
     CardFooter,
     CardTitle,
 } from "./ui/card";
-import { Label } from "@radix-ui/react-label";
-import { Button } from "./ui/button";
 import { ComboboxDemo } from "./ui/combobox";
+import { Input } from "./ui/input";
 import Linkfiled from "./ui/Linkfiled";
 import Mediainput from "./ui/mediainput";
 import { Textarea } from "./ui/textarea";
-import { Input } from "./ui/input";
-import useUser from "@/lib/hooks/useUser";
-import { getCookie } from "cookies-next";
-import axios from "axios";
-import { domain } from "@/lib/domain";
-import { useAtom } from "jotai";
-import { userAtom } from "@/lib/atoms/userAtom";
 import { useToast } from "./ui/use-toast";
 
 const Project = () => {
@@ -102,7 +100,7 @@ const Project = () => {
     };
 
     return (
-        <Card className="w-full flex flex-col justify-center items-start">
+        <Card className="w-full flex flex-col justify-center items-start p-5">
             <CardTitle className="w-full flex justify-start">
                 <ComboboxDemo
                     frameworks={projectsarray}
@@ -111,10 +109,10 @@ const Project = () => {
                     onValueChange={handleProjectValueChange}
                 />
             </CardTitle>
-            <CardDescription className="w-full flex justify-start py-2">
+            <CardDescription className="w-full flex justify-start py-2 pl-4">
                 Share your new project
             </CardDescription>
-            <CardContent className="w-full flex justify-center px-7">
+            <CardContent className="w-full flex justify-center ">
                 <form className="w-full flex justify-center flex-1">
                     <div className="flex flex-col w-full items-center gap-4 justify-center flex-1">
                         <div className="flex flex-col space-y-1.5 w-full justify-center">

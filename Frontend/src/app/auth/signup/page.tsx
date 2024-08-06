@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Toaster } from "@/components/ui/toaster";
 import { domain } from "@/lib/domain";
+import { useRouter } from "next/navigation";
 interface ErrorMessage {
     error: boolean;
     title: string;
@@ -94,6 +95,8 @@ function Signup() {
                 if (userId_) {
                     setUserId(userId_);
                     setLoginSuccess(true);
+                    const router = useRouter();
+                    router.push("/dashboard");
                 }
             };
 
