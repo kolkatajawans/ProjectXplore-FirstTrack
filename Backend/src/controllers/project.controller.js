@@ -97,5 +97,33 @@ const sentListOfProject = asyncHandler(async (req,res,next)=>{
   }
 })
 
+const getProjectById = asyncHandler(async(req,res,next)=>{
 
-export { createProject,sentListOfProject };
+  const { projectId } = req.query
+
+  try {
+    const project = await prisma.project.findUnique({
+      where: { id: Number(projectId) },
+      include: {
+        author: true,   // Includes author details
+        room: true,     // Includes room details if exists
+        links: true,    // Includes project links
+        images: true,   // Includes project images
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    res.json(project);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}) 
+
+
+
+
+export { createProject,sentListOfProject,getProjectById };
