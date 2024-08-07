@@ -1,102 +1,103 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
-
-import { cn } from "@/lib/utils"
+import { Check, ChevronsUpDown, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 interface Framework {
-    value: string;
-    label: string;
+  value: string
+  label: string
 }
 
 interface ComboboxDemoProps {
-    frameworks: Framework[];
-    placeholder: string;
-    defaultValue?: string;
-    onValueChange: (value: string) => void;
+  frameworks: Framework[]
+  placeholder: string
+  defaultValue?: string
+  onValueChange: (value: string) => void
+  setCreateRoomClick: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export function ComboboxDemo({
-    frameworks,
-    placeholder,
-    defaultValue = "",
-    onValueChange
+  frameworks,
+  placeholder,
+  defaultValue = "",
+  onValueChange,
+  setCreateRoomClick
 }: ComboboxDemoProps) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState(defaultValue)
+  const router = useRouter();
 
   React.useEffect(() => {
     setValue(defaultValue)
   }, [defaultValue])
 
   const handleValueChange = (currentValue: string) => {
-    setValue(currentValue);
-    onValueChange(currentValue);
-    setOpen(false);
-  };
+    setValue(currentValue)
+    onValueChange(currentValue)
+    setOpen(false)
+  }
 
   const handleItemClick = (currentValue: string) => {
-    console.log(`Item clicked: ${currentValue}`); // Debugging log
-    handleValueChange(currentValue);
-  };
+    handleValueChange(currentValue)
+  }
+
+  const handleClickRoom = () => {
+
+    router.push('/createroom')
+  }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          role="combobox"
-          aria-expanded={open}
           className="w-[200px] justify-between"
-          onClick={() => setOpen(!open)} // Toggle popover on button click
+          onClick={() => setOpen(!open)}
         >
           {value
             ? frameworks.find((framework) => framework.value === value)?.label
             : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
-        <Command>
-          <CommandInput placeholder={placeholder} />
-          <CommandEmpty>No framework found.</CommandEmpty>
-          <CommandList>
-            <CommandGroup>
-              {frameworks.map((framework) => (
-                <CommandItem
-                  key={framework.value}
-                  value={framework.value}
-                  onSelect={() => handleItemClick(framework.value)} // Ensure onSelect is correct
-                  onClick={() => handleItemClick(framework.value)} // Ensure onClick is correct
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === framework.value ? "opacity-100 cursor-pointer" : "opacity-0"
-                    )}
-                  />
-                  {framework.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-         </Command>
-      </PopoverContent>
-    </Popover>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-[200px] p-0">
+        <DropdownMenuLabel>{placeholder}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={handleClickRoom}
+          className="flex items-center cursor-pointer"
+        >
+          <Plus
+            className="mr-2 h-4 w-4"/>
+          Create Room
+        </DropdownMenuItem>
+        {frameworks.map((framework) => (
+          <DropdownMenuItem
+            key={framework.value}
+            onClick={() => handleItemClick(framework.value)}
+            className="flex items-center cursor-pointer"
+          >
+            <Check
+              className={cn(
+                "mr-2 h-4 w-4",
+                value === framework.value ? "opacity-100" : "opacity-0"
+              )}
+            />
+            {framework.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

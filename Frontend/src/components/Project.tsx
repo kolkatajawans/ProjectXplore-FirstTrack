@@ -4,7 +4,7 @@ import { domain } from "@/lib/domain";
 import { Label } from "@radix-ui/react-label";
 import axios from "axios";
 import { useAtom } from "jotai";
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import { Button } from "./ui/button";
 import {
     Card,
@@ -19,8 +19,13 @@ import Linkfiled from "./ui/Linkfiled";
 import Mediainput from "./ui/mediainput";
 import { Textarea } from "./ui/textarea";
 import { useToast } from "./ui/use-toast";
-
-const Project = () => {
+interface ProjectProps {
+    setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
+  }
+  
+  const Project: React.FC<ProjectProps> = ({ setRefresh }) => {
+    const [loading,setloading] = useState<boolean>(false)
+    const [mode,setmode] = useState()
     const [user] = useAtom(userAtom);
     const userid = user?.toString();
     const [ProjectChoice, setProjectChoice] = useState<string>("1");
@@ -61,8 +66,9 @@ const Project = () => {
     };
     const handleSubmit = async () => {
         // if (typeof user === "string") {
+        setRefresh(true)
             console.log("user : ",user);
-            
+            setloading(true)
             const links = linkfields.map((field: any) => field.link);
             const formData = new FormData();
 
@@ -89,12 +95,15 @@ const Project = () => {
                 toast({
                     title: "Project Created Successfully",
                 });
+                setloading(false)
             } catch (error) {
                 console.error(error);
                 toast({
                     title: "Error Uploading the Project",
                     description: "Please try again.",
                 });
+                setloading(false)
+                setRefresh(false)
             }
           // }
     };
@@ -102,12 +111,12 @@ const Project = () => {
     return (
         <Card className="w-full flex flex-col justify-center items-start p-5">
             <CardTitle className="w-full flex justify-start">
-                <ComboboxDemo
+                {/* <ComboboxDemo
                     frameworks={projectsarray}
                     placeholder="Select a project..."
                     defaultValue={ProjectChoice}
                     onValueChange={handleProjectValueChange}
-                />
+                /> */}
             </CardTitle>
             <CardDescription className="w-full flex justify-start py-2 pl-4">
                 Share your new project
@@ -154,7 +163,7 @@ const Project = () => {
                 </form>
             </CardContent>
             <CardFooter className="w-full flex justify-center">
-                <Button onClick={handleSubmit}>Submit</Button>
+                <Button onClick={handleSubmit} disabled={loading?true:false}>Submit</Button>
             </CardFooter>
         </Card>
     );

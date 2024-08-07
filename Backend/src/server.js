@@ -24,10 +24,12 @@ app.use(cookieParser());
 //router import 
 import userRouter from './routes/user.router.js';
 import ProjectRouter from './routes/project.router.js';
+import RoomRouter from './routes/room.router.js';
 
 //router declaration
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/project',ProjectRouter)
+app.use('/api/v1/room',RoomRouter)
 
 
 

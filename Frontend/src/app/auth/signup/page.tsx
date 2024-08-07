@@ -24,6 +24,7 @@ interface Message {
 }
 
 function Signup() {
+    const router = useRouter();
     const [email, setemail] = useState("");
     const [password, setPassword] = useState("");
     const [firstname, setfirstName] = useState("");
@@ -58,6 +59,7 @@ function Signup() {
                         title: "Successfully logged in",
                         description: user.name,
                     });
+                    router.push("/dashboard");
                     return user._id;
                 } catch (error: any) {
                     if (error.response) {
@@ -95,8 +97,7 @@ function Signup() {
                 if (userId_) {
                     setUserId(userId_);
                     setLoginSuccess(true);
-                    const router = useRouter();
-                    router.push("/dashboard");
+                    
                 }
             };
 

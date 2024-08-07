@@ -47,7 +47,7 @@ const ProjectList = () => {
                     <Link href={`/project/${project.id}`}>
                     <Card key={project.id} className='mx-6 cursor-pointer'>
                         <CardContent className='text-sm'>
-                            {}{project.description}
+                            {}{project.name}
                         </CardContent>
                     </Card>
                         </Link>
