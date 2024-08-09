@@ -12,7 +12,7 @@ export default function Home() {
         </div>
         <div>
           <div className="flex justify-center items-center gap-4">
-            <Link href={"/auth/signin"} passHref>
+            {/* <Link href={"/auth/signin"} passHref>
             <Button>
               Sign In
             </Button>
@@ -21,7 +21,7 @@ export default function Home() {
             <Button>
               Sign Up
             </Button>
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>
