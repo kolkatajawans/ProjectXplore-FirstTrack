@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export const createUser = async ({ name, email, password, avatarUrl }) => {
     const hashedPassword = await bcrypt.hash(password, 10);
-    return prisma.user.create({
+    return prisma.users.create({
         data: {
             name,
             email,
@@ -20,7 +20,7 @@ export const findUserByEmail = async (email) => {
     if(!email){
         console.log("no emial")
     }
-    return prisma.user.findUnique({
+    return prisma.users.findUnique({
         where: { email },
         select: { password: true, refreshToken: true, id: true, name: true, email: true }
     });
@@ -28,21 +28,21 @@ export const findUserByEmail = async (email) => {
 
 export const findUserById = async (id) => {
     const userid = parseInt(id); 
-    return prisma.user.findUnique({
+    return prisma.users.findUnique({
         where: { id:userid },
         select: { id: true, name: true, email: true, avatarUrl: true, refreshToken: true }
     });
 };
 
 export const updateUserRefreshToken = async (id, refreshToken) => {
-    return prisma.user.update({
+    return prisma.users.update({
         where: { id },
         data: { refreshToken }
     });
 };
 
 export const clearUserRefreshToken = async (id) => {
-    return prisma.user.update({
+    return prisma.users.update({
         where: { id },
         data: { refreshToken: null }
     });

@@ -7,134 +7,329 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id             Int      @id @default(autoincrement())
-  name           String
-  email          String   @unique
-  password       String
-  active         Boolean  @default(true)
-  refreshToken   String?
-  avatarUrl      String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  roomsAsAuthor  Room[]   @relation("AuthorRooms")
-  roomsAsMember  RoomMember[]
-  projects       Project[] 
-  comments       Comment[]
-  projectLikes   ProjectLike[]
-  commentLikes   CommentLike[]
-  followers      Follower[] @relation("UserFollowing")
-  following      Follower[] @relation("UserFollowers")
-  
-  authoredTasks  Task[]    @relation("TasksAuthored")
-  assignedTasks  Task[]    @relation("TasksAssigned")
+model achievements {
+  achievement_id          String  @id @default(uuid())
+  team_id                 String?
+  achievement_name        String  @db.VarChar(255)
+  achievement_description String?
+  image_link              String?
+  useful_link             String?
+  teams                   teams?  @relation(fields: [team_id], references: [team_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model Room {
-  id             Int      @id @default(autoincrement())
-  name           String?
-  objective      String?
-  authorId       Int
-  author         User    @relation("AuthorRooms", fields: [authorId], references: [id])
-  members        RoomMember[]
-  projects       Project[]
-  requests       Request[] // Add this field to reference Request
+model answers {
+  answer_id   String    @id @default(uuid())
+  issue_id    String?
+  user_id     String?
+  answer_text String?
+  timestamp   DateTime? @default(now()) @db.Timestamp(6)
+  votes       Int?      @default(0)
+  is_accepted Boolean?  @default(false)
+  issues      issues?   @relation(fields: [issue_id], references: [issue_id], onDelete: NoAction, onUpdate: NoAction)
+  users       users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-
-model RoomMember {
-  roomId         Int
-  userId         Int
-  room           Room    @relation(fields: [roomId], references: [id])
-  user           User    @relation(fields: [userId], references: [id])
-  @@id([roomId, userId])
+model chat_messages {
+  message_id   String    @id @default(uuid())
+  team_id      String?
+  user_id      String?
+  message_text String?
+  timestamp    DateTime? @default(now()) @db.Timestamp(6)
+  teams        teams?    @relation(fields: [team_id], references: [team_id], onDelete: NoAction, onUpdate: NoAction)
+  users        users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model Project {
-  id             Int      @id @default(autoincrement())
-  authorId       Int      
-  author         User     @relation(fields: [authorId], references: [id])
-  roomId         Int?     
-  room           Room?    @relation(fields: [roomId], references: [id])
-  name           String
-  description    String
-  links          Link[]   
-  images         Image[]  
-  comments       Comment[]
-  projectLikes   ProjectLike[]
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model collaboration_request_reviews {
+  review_id                                                  String                  @id @default(uuid())
+  request_id                                                 String?
+  reviewer_id                                                String?
+  collaborator_id                                            String?
+  review_status                                              String?                 @db.VarChar(20)
+  review_comments                                            String?
+  timestamp                                                  DateTime?               @default(now()) @db.Timestamp(6)
+  users_collaboration_request_reviews_collaborator_idTousers users?                  @relation("collaboration_request_reviews_collaborator_idTousers", fields: [collaborator_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  collaboration_requests                                     collaboration_requests? @relation(fields: [request_id], references: [request_id], onDelete: NoAction, onUpdate: NoAction)
+  users_collaboration_request_reviews_reviewer_idTousers     users?                  @relation("collaboration_request_reviews_reviewer_idTousers", fields: [reviewer_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model Comment {
-  id             Int      @id @default(autoincrement())
-  content        String
-  authorId       Int
-  author         User     @relation(fields: [authorId], references: [id])
-  projectId      Int
-  project        Project  @relation(fields: [projectId], references: [id])
-  createdAt      DateTime @default(now())
-  commentLikes   CommentLike[]
-
-  @@index([projectId])
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model collaboration_requests {
+  request_id                    String                          @id @default(uuid())
+  idea_id                       String?
+  user_id                       String?
+  request_text                  String?
+  domain_expertise_required     String?
+  status                        String?                         @db.VarChar(20)
+  timestamp                     DateTime?                       @default(now()) @db.Timestamp(6)
+  collaboration_request_reviews collaboration_request_reviews[]
+  ideas                         ideas?                          @relation(fields: [idea_id], references: [idea_id], onDelete: NoAction, onUpdate: NoAction)
+  users                         users?                          @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model Link {
-  id             Int      @id @default(autoincrement())
-  url            String   
-  projectId      Int
-  project        Project  @relation(fields: [projectId], references: [id])
+model comments {
+  comment_id   String    @id @default(uuid())
+  parent_id    String?
+  user_id      String?
+  comment_text String?
+  timestamp    DateTime? @default(now()) @db.Timestamp(6)
+  votes        Int?      @default(0)
+  users        users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model Image {
-  id             Int      @id @default(autoincrement())
-  url            String
-  projectId      Int
-  project        Project  @relation(fields: [projectId], references: [id])
+model features {
+  feature_id      String    @id @default(uuid())
+  feature_name    String    @db.VarChar(100)
+  feature_details String?
+  project_id      String?
+  projects        projects? @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction)
+  steps           steps[]
 }
 
-model ProjectLike {
-  userId         Int
-  projectId      Int
-  user           User    @relation(fields: [userId], references: [id])
-  project        Project @relation(fields: [projectId], references: [id])
-  @@id([userId, projectId])
+model ideas {
+  idea_id                String                   @id @default(uuid())
+  user_id                String?
+  idea_text              String?
+  image_link             String?
+  video_link             String?
+  timestamp              DateTime?                @default(now()) @db.Timestamp(6)
+  collaboration_requests collaboration_requests[]
+  users                  users?                   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model CommentLike {
-  userId         Int
-  commentId      Int
-  user           User    @relation(fields: [userId], references: [id])
-  comment        Comment @relation(fields: [commentId], references: [id])
-  @@id([userId, commentId])
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model impressions {
+  impression_id   String    @id @default(uuid())
+  user_id         String?
+  target_id       String?
+  target_type     String?   @db.VarChar(10)
+  impression_type String?   @db.VarChar(20)
+  timestamp       DateTime? @default(now()) @db.Timestamp(6)
+  users           users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model Follower {
-  followerId     Int
-  followingId    Int
-  follower       User @relation("UserFollowing", fields: [followerId], references: [id])
-  following      User @relation("UserFollowers", fields: [followingId], references: [id])
-  @@id([followerId, followingId])
+model institutions {
+  institution_id String  @id @default(uuid())
+  name           String  @db.VarChar(255)
+  address        String?
 }
 
-model Request {
-  id          Int      @id @default(autoincrement())
-  senderId    Int
-  receiverId  Int
-  roomId      Int?     // Add this field to reference the Room
-  room        Room?    @relation(fields: [roomId], references: [id]) // Define the relation
-  status      String   @default("pending")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model interests {
+  interest_id    String           @id @default(uuid())
+  interest_name  String           @unique @db.VarChar(100)
+  user_interests user_interests[]
 }
 
-model Task {
-  id         Int      @id @default(autoincrement())
-  content    String
-  authorId   Int
-  assignId   Int
-  status     String   @default("pending")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+model issue_tags {
+  issue_tag_id String  @id @default(uuid())
+  issue_id     String?
+  tag_id       String?
+  issues       issues? @relation(fields: [issue_id], references: [issue_id], onDelete: NoAction, onUpdate: NoAction)
+  tags         tags?   @relation(fields: [tag_id], references: [tag_id], onDelete: NoAction, onUpdate: NoAction)
+}
 
-  author     User     @relation("TasksAuthored", fields: [authorId], references: [id])
-  assignedTo User     @relation("TasksAssigned", fields: [assignId], references: [id])
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model issues {
+  issue_id    String       @id @default(uuid())
+  user_id     String?
+  title       String       @db.VarChar(255)
+  description String?
+  timestamp   DateTime?    @default(now()) @db.Timestamp(6)
+  status      String?      @db.VarChar(20)
+  votes       Int?         @default(0)
+  answers     answers[]
+  issue_tags  issue_tags[]
+  users       users?       @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model languages {
+  language_id   String @id @default(uuid())
+  language_name String @unique @db.VarChar(50)
+}
+
+model mentors {
+  mentor_id      String     @id @default(uuid())
+  mentor_name    String     @db.VarChar(255)
+  mentor_details String?
+  projects       projects[]
+}
+
+model project_categories {
+  project_category_id String    @id @default(uuid())
+  project_id          String?
+  language_id         String?
+  software_id         String?
+  projects            projects? @relation(fields: [project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model projects {
+  project_id         String               @id @default(uuid())
+  title              String               @db.VarChar(255)
+  description        String?
+  project_name       String?              @db.VarChar(255)
+  duration           String?              @db.VarChar(50)
+  mentor_details     String?
+  reference_text     String?
+  demo_link          String?
+  features           features[]
+  project_categories project_categories[]
+  mentors            mentors?             @relation(fields: [mentor_details], references: [mentor_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model roles {
+  role_id String  @id @default(uuid())
+  label   String  @unique @db.VarChar(50)
+  users   users[]
+}
+
+model room_chat_messages {
+  room_message_id String    @id @default(uuid())
+  room_id         String?
+  user_id         String?
+  message_text    String?
+  timestamp       DateTime? @default(now()) @db.Timestamp(6)
+  rooms           rooms?    @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
+  users           users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model room_member_roles {
+  room_member_role_id String  @id @default(uuid())
+  room_id             String?
+  user_id             String?
+  role_name           String? @db.VarChar(50)
+  rooms               rooms?  @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
+  users               users?  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model room_task_list {
+  room_task_id        String    @id @default(uuid())
+  room_id             String?
+  task_title          String    @db.VarChar(255)
+  task_description    String?
+  due_date            DateTime? @db.Date
+  status              String?   @db.VarChar(20)
+  assigned_to_user_id String?
+  users               users?    @relation(fields: [assigned_to_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  rooms               rooms?    @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model rooms {
+  room_id            String               @id @default(uuid())
+  room_name          String               @db.VarChar(255)
+  objective          String?
+  profile_pic_link   String?
+  room_chat_messages room_chat_messages[]
+  room_member_roles  room_member_roles[]
+  room_task_list     room_task_list[]
+}
+
+model skills {
+  skill_id    String        @id @default(uuid())
+  skill_name  String        @unique @db.VarChar(100)
+  user_skills user_skills[]
+}
+
+model software {
+  software_id   String @id @default(uuid())
+  software_name String @unique @db.VarChar(100)
+}
+
+model steps {
+  step_id     String    @id @default(uuid())
+  input       String?
+  process     String?
+  output      String?
+  useful_link String[]
+  features_id String?
+  features    features? @relation(fields: [features_id], references: [feature_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model tags {
+  tag_id     String       @id @default(uuid())
+  tag_name   String       @unique @db.VarChar(50)
+  issue_tags issue_tags[]
+}
+
+model team_member_roles {
+  member_role_id String  @id @default(uuid())
+  team_id        String?
+  user_id        String?
+  role_name      String? @db.VarChar(50)
+  teams          teams?  @relation(fields: [team_id], references: [team_id], onDelete: NoAction, onUpdate: NoAction)
+  users          users?  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model teams {
+  team_id           String              @id @default(uuid())
+  team_name         String              @db.VarChar(255)
+  team_author_id    String?
+  objective         String?
+  profile_pic_link  String?
+  achievements      achievements[]
+  chat_messages     chat_messages[]
+  team_member_roles team_member_roles[]
+  users             users?              @relation(fields: [team_author_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model user_interests {
+  user_id     String
+  interest_id String
+  interests   interests @relation(fields: [interest_id], references: [interest_id], onDelete: NoAction, onUpdate: NoAction)
+  users       users     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_id, interest_id])
+}
+
+model user_skills {
+  user_id  String
+  skill_id String
+  skills   skills @relation(fields: [skill_id], references: [skill_id], onDelete: NoAction, onUpdate: NoAction)
+  users    users  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_id, skill_id])
+}
+
+model users {
+  user_id                                                                            String                          @id @default(uuid())
+  full_name                                                                          String                          @db.VarChar(255)
+  role_id                                                                            String?
+  email                                                                              String                          @unique @db.VarChar(255)
+  phone_number                                                                       String?                         @db.VarChar(20)
+  username                                                                           String                          @unique @db.VarChar(50)
+  password                                                                           String                          @db.VarChar(255)
+  refreshToken                                                                       String?                         @db.Text
+  date_of_birth                                                                      DateTime?                       @db.Date
+  address                                                                            String?
+  profile_picture_link                                                               String?
+  institution_id                                                                     String?
+  team_id                                                                            String?
+  answers                                                                            answers[]
+  chat_messages                                                                      chat_messages[]
+  collaboration_request_reviews_collaboration_request_reviews_collaborator_idTousers collaboration_request_reviews[] @relation("collaboration_request_reviews_collaborator_idTousers")
+  collaboration_request_reviews_collaboration_request_reviews_reviewer_idTousers     collaboration_request_reviews[] @relation("collaboration_request_reviews_reviewer_idTousers")
+  collaboration_requests                                                             collaboration_requests[]
+  comments                                                                           comments[]
+  ideas                                                                              ideas[]
+  impressions                                                                        impressions[]
+  issues                                                                             issues[]
+  room_chat_messages                                                                 room_chat_messages[]
+  room_member_roles                                                                  room_member_roles[]
+  room_task_list                                                                     room_task_list[]
+  team_member_roles                                                                  team_member_roles[]
+  teams                                                                              teams[]
+  user_interests                                                                     user_interests[]
+  user_skills                                                                        user_skills[]
+  roles                                                                              roles?                          @relation(fields: [role_id], references: [role_id], onDelete: NoAction, onUpdate: NoAction)
+  votes                                                                              votes[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model votes {
+  vote_id   String    @id @default(uuid())
+  user_id   String?
+  parent_id String?
+  vote_type String?   @db.VarChar(10)
+  timestamp DateTime? @default(now()) @db.Timestamp(6)
+  users     users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }

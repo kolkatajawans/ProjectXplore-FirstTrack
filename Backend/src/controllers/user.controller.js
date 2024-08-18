@@ -13,19 +13,18 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import prisma from "../db/prismaClient.js";
+import { getRoleId } from "../model/function.reusable.js";
+import bcrypt from 'bcrypt';
 
 const registerUser = asyncHandler(async (req, res, next) => {
-    const { fullName, email, password } = req.body;
+    const { fullName, email, password,role,dob,address,phone_number,username } = req.body;
 
-    if ([fullName, email, password].some((field) => field?.trim() === "")) {
+    if ([fullName, email, password,role,dob,address].some((field) => field?.trim() === "")) {
         throw next(new ApiError(400, "All fields are required"));
     }
 
-    const existedUser = await findUserByEmail(email);
 
-    if (existedUser) {
-        throw next(new ApiError(409, "Email already exists"));
-    }
 
     const avatarlocalpath = req.file?.path;
     if (!avatarlocalpath) {
@@ -37,20 +36,29 @@ const registerUser = asyncHandler(async (req, res, next) => {
         throw next(new ApiError(400, "Failed to upload avatar"));
     }
 
-    const user = await createUser({
-        name: fullName,
-        email,
-        password,
-        avatarUrl: avatarUrl.url,
+    const role_id = await getRoleId(role)
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const response  =await prisma.users.create({
+        data: {
+            full_name:fullName,
+            email:email,
+            password:hashedPassword,
+            role_id:role_id,
+            date_of_birth:new Date(dob),
+            address:address,
+            phone_number:phone_number,
+            profile_picture_link:avatarUrl.url,
+            username:username
+        }
     });
 
-    if (!user) {
+    if (!response) {
         throw next(new ApiError(500, "Error registering user"));
     }
 
     return res
         .status(201)
-        .json(new ApiResponse(200, user, "User registered successfully"));
+        .json(new ApiResponse(200, response, "User registered successfully"));
 });
 
 const generateTokens = async (userId) => {
@@ -90,10 +98,9 @@ const loginUser = asyncHandler(async (req, res, next) => {
     const options = {
         httpOnly: true,
         secure: false, // HTTP for development
-        sameSite: 'Lax', // or 'Strict' based on your needs
-        maxAge: 24 * 60 * 60 * 1000 // Optional: Set expiration time
-      };
-      
+        sameSite: "Lax", // or 'Strict' based on your needs
+        maxAge: 24 * 60 * 60 * 1000, // Optional: Set expiration time
+    };
 
     return res
         .status(200)
@@ -169,7 +176,7 @@ const refreshAccessToken = asyncHandler(async (req, res, next) => {
 
 const validateAccessToken = asyncHandler(async (req, res, next) => {
     const incomingAccessToken = req.cookies.accessToken;
-    console.log("this",incomingAccessToken)
+    console.log("this", incomingAccessToken);
     if (!incomingAccessToken) {
         throw next(new ApiError(401, "Unauthorized request"));
     }
@@ -210,10 +217,11 @@ const getUserDetails = asyncHandler(async (req, res, next) => {
         .json(new ApiResponse(200, userDetails, "User found"));
 });
 
-
 export {
-    getUserDetails, loginUser,
+    getUserDetails,
+    loginUser,
     logoutUser,
-    refreshAccessToken, registerUser, validateAccessToken
+    refreshAccessToken,
+    registerUser,
+    validateAccessToken,
 };
-

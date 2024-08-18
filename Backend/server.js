@@ -1,8 +1,8 @@
 import express, { text } from 'express';
-import { logger, logEvents } from './middlewares/logger.js';
-import ErrorHandler from './middlewares/errorHandler.js';
+import { logger, logEvents } from './src/middlewares/logger.js';
+import ErrorHandler from './src/middlewares/errorHandler.js';
 import cors from 'cors';
-import { corsoptions } from './config/corsOptions.js';
+import { corsoptions } from './src/config/corsOptions.js';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 
@@ -22,14 +22,10 @@ app.use('/', express.static("public"));
 app.use(cookieParser());
 
 //router import 
-import userRouter from './routes/user.router.js';
-import ProjectRouter from './routes/project.router.js';
-import RoomRouter from './routes/room.router.js';
+import userRouter from './src/routes/user.router.js';
 
 //router declaration
 app.use('/api/v1/users', userRouter);
-app.use('/api/v1/project',ProjectRouter)
-app.use('/api/v1/room',RoomRouter)
     
 
 
